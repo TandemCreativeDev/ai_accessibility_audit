@@ -24,9 +24,22 @@ Prioritise:
 Provide actionable fixes with specific code examples.
 ```
 
-### 3. Process Results
+### 3. Discuss Violations and Fixes
 
-The LLM will output structured JSON for each issue that can be fed directly into implementation agents or development workflows.
+The LLM will present each issue, one at a time, with suggested fixes. You can review it, check that the LLM has interpreted the codebase correctly, and check whether the fix is appropriate or suggest an alternative approach.
+
+### 4. Process Results
+
+At the end, the LLM will output a structured JSON listing each issue that can be fed directly into implementation agents or development workflows.
+
+## 5. Implementation Agent
+
+Feed a prompt like this into your implementation agent (recommend to use [OpenAI Codex](https://openai.com/index/introducing-codex/)):
+
+```markdown
+Apply required changes listed in JSON accessibility audit below:
+[PASTE JSON]
+```
 
 ## What Gets Audited
 
