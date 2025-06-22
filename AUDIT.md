@@ -85,6 +85,8 @@ Replace divs: `<section>`, `<article>`, `<nav>`, `<aside>`, `<ul>/<li>`, `<time>
 **Reusable patterns:** Consistent ARIA labelling, focus management
 **⚠️ Navigation semantic:** Wrap existing `<ul>` elements with `<nav>`
 **Violations:** Deep div nesting (>3 levels), missed semantic opportunities
+**⚠️ Redundant ARIA:** Remove implicit roles: `<nav role="navigation">`, `<button role="button">`, `<main role="main">`, `<article role="article">`, `<footer role="contentinfo">` (when footer is direct child of body)
+**Context matters:** `<header role="banner">` only redundant at body level, `<section role="region">` only redundant when section has accessible name
 
 ### 11. Dynamic Language
 
