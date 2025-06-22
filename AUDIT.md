@@ -6,6 +6,7 @@
 
 `export const metadata = { title: "Page-specific title | Website title" }`
 **Violations:** Generic titles, missing metadata
+**✅ Check:** `useEffect(() => { document.title = ... }, [language])` also works
 
 ### 2. Heading Hierarchy
 
@@ -21,6 +22,8 @@
 
 Min 4.5:1 normal text, 3:1 large text/UI
 **API:** `https://webaim.org/resources/contrastchecker/?fcolor=HEXCOLOR&bcolor=HEXCOLOR&api`
+**⚠️ MUST calculate actual ratios before flagging - don't assume failures**
+**API:** Calculate luminance manually or use contrast tools
 **Violations:** Insufficient ratios, colour-only information
 
 ### 5. Alt Text
@@ -40,17 +43,21 @@ Decorative: `<Image alt="" />`
 </a>
 ```
 
+**⚠️ Only flag if:** Complex navigation, sidebars, lengthy headers
+**Don't flag:** Thin headers (<100px) with immediate main content access
 **Violations:** Missing skip links, non-functional targets, invisible when focused
 
 ### 7. Touch Targets (WCAG 2.2)
 
 `min-h-[24px] min-w-[24px]` or adequate spacing
+**⚠️ WCAG 2.2 standard is NOW 24px minimum (not 44px previously used)**
 **Violations:** <24px targets, insufficient spacing
 
 ### 8. Video Captions
 
 `<track kind="subtitles" src="/subtitles.vtt">` for informational content
-**Violations:** Missing captions/transcripts, auto-playing audio
+**Violations:** Missing captions/transcripts on informational videos (not video with `aria-hidden`), auto-playing audio, autoplay without controls
+**Check:** If video without controls, check that alternative controls are not provided outside element before flagging
 
 ### 9. Time Limits
 
@@ -71,6 +78,7 @@ useEffect(() => {
 }, [language]);
 ```
 
+**⚠️ Check dependency array works before flagging as broken**
 **Violations:** Language switching without lang updates
 
 ### 12. Forms
@@ -81,7 +89,8 @@ useEffect(() => {
 ```
 
 Browser validation: `formRef.current.checkValidity()` + `setCustomValidity()`
-**Violations:** Unlabeled inputs, missing fieldset/legend, aggressive custom validation
+**⚠️ Browser validation with `onInvalid/onInput` IS WCAG compliant for simple forms**
+**Violations:** Unlabeled inputs, missing fieldset/legend
 
 ### 13. Live Regions & Focus Management
 
@@ -97,7 +106,8 @@ Focus traps: `focus-trap-react` with `returnFocusOnDeactivate: true`
 
 ### 14. Motion Preferences
 
-`motion-reduce:hidden`, `motion-reduce:block`, `motion-reduce:static`
+`motion-reduce:hidden`, `motion-reduce:block`, `motion-reduce:static`, `motion-safe:bl;ock`
+**⚠️ Don't flag when Tailwind `motion-reduce:` classes already exist**
 **Violations:** Auto-playing animations without motion-reduce alternatives
 
 ## WCAG 2.2 Requirements
@@ -165,21 +175,18 @@ Fail builds on accessibility regressions
 1. Missing unique page titles
 2. Multiple h1s/skipped heading levels
 3. Missing main landmark
-4. Colour contrast failures
+4. **Calculated** colour contrast failures
 5. Missing/inappropriate alt text
-6. Non-functional skip links
+6. **Complex layouts** without skip links
 7. Touch targets <24px
-8. Missing captions on informational videos
+8. **Informational videos** without captions
 9. Deep div nesting vs semantic HTML
-10. Language switching without lang updates
-11. Dynamic content without live regions
-12. Missing motion-reduce alternatives
-13. Unlabeled forms
-14. Missing focus traps in modals
-15. Hydration accessibility mismatches
-16. Missing route focus management
-17. Dark mode contrast failures
-18. Broken dynamic Tailwind classes
+10. Dynamic content without live regions
+11. **Actual missing** motion-reduce alternatives
+12. Unlabeled forms
+13. Missing focus traps in modals
+14. Hydration accessibility mismatches
+15. Missing route focus management
 
 ## Output Format
 
