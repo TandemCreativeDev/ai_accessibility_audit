@@ -1,289 +1,199 @@
-# Next.js + Tailwind Accessibility Audit Guide
+# Next.js + Tailwind Accessibility Audit
 
-## Core Audit Areas
+## Core Patterns
 
-### 1. Page Structure & Metadata
+### 1. Unique Page Titles
 
-**Check:** Each page has unique title in metadata/head
-**Pattern:** Page-specific `export const metadata` or dynamic `generateMetadata()`
-**Flag:** Same title across multiple pages, missing/generic titles
-**Required:** Descriptive, unique page titles that reflect content
+`export const metadata = { title: "Page-specific title | Website title" }`
+**Violations:** Generic titles, missing metadata
 
 ### 2. Heading Hierarchy
 
-**Check:** Exactly one `<h1>` per page, no skipped levels
-**Pattern:** `h1 -> h2 -> h3` (never skip from h1 to h3)
-**Flag:** Multiple h1s, skipped heading levels, missing h1
-**Location:** h1 should be first heading in main content area
+`h1 -> h2 -> h3` (exactly one h1 per page, no skipped levels)
+**Violations:** Multiple h1s, skipped levels, missing h1
 
-### 3. Layout Consistency
+### 3. Main Landmark
 
-**Check:** `layout.tsx` provides consistent `<main>` element on all pages
-**Pattern:** `<main className="container mx-auto...">{children}</main>`
-**Flag:** Pages without main landmark, inconsistent layout structure
-**Required:** Main element wrapping page content, consistent across app
+`<main className="container mx-auto">{children}</main>` in layout.tsx
+**Violations:** Pages without main element, inconsistent layout
 
-### 4. Color Contrast Requirements
+### 4. Colour Contrast
 
-**Check:** Minimum 4.5:1 ratio for normal text, 3:1 for large text/UI components
-**API:** Use WebAIM API for precise calculations: `https://webaim.org/resources/contrastchecker/?fcolor=HEXCOLOR&bcolor=HEXCOLOR&api`
-**Pattern:** Test all text/background combinations, including hover/focus states
-**Flag:** Insufficient contrast ratios, relying solely on color for information
-**Tailwind:** Ensure custom color combinations meet standards
+Min 4.5:1 normal text, 3:1 large text/UI
+**API:** `https://webaim.org/resources/contrastchecker/?fcolor=HEXCOLOR&bcolor=HEXCOLOR&api`
+**Violations:** Insufficient ratios, colour-only information
 
-### 5. Alternative Text (Alt Text) Audit
+### 5. Alt Text
 
-**Check:** All images have appropriate alt text, decorative images use `alt=""`
-**Pattern:** Descriptive, concise, context-appropriate alt text
-**Flag:** Missing alt attributes, generic text like "image" or "photo", identical alt text and captions
-**Required:** Empty alt for decorative images: `<Image alt="" />`
+Descriptive: `<Image alt="User profile showing completion status" />`
+Decorative: `<Image alt="" />`
+**Violations:** Missing alt, generic text, identical alt/captions
 
-### 6. Skip Links Implementation
+### 6. Skip Links
 
-**Check:** "Skip to main content" link as first focusable element
-**Pattern:** `<a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4">Skip to main content</a>`
-**Flag:** Missing skip links, non-functional skip targets, invisible when focused
-**Required:** Visible when focused, functional target element with proper ID
+```jsx
+<a
+  href="#main"
+  className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4"
+>
+  Skip to main content
+</a>
+```
 
-### 7. Touch Target Size (WCAG 2.2)
+**Violations:** Missing skip links, non-functional targets, invisible when focused
 
-**Check:** Interactive elements minimum 24x24px CSS pixels
-**Pattern:** `min-h-[24px] min-w-[24px]` or adequate spacing between targets
-**Implementation:** Use padding for touch area, not just visual size
-**Flag:** Small touch targets, insufficient spacing (<24px) between interactive elements
-**Note:** Need not change actual icon sizes, only touch target around it
+### 7. Touch Targets (WCAG 2.2)
 
-### 8. Video Captions and Transcripts
+`min-h-[24px] min-w-[24px]` or adequate spacing
+**Violations:** <24px targets, insufficient spacing
 
-**Check:** Video content has captions, audio has transcripts (informational content only)
-**Pattern:** `<track kind="subtitles" src="/subtitles.vtt">` for video elements
-**Flag:** Informational media without captions/transcripts, auto-playing audio
-**Exception:** Decorative videos don't require captions if purely atmospheric
+### 8. Video Captions
 
-### 9. Time Limits and Auto-playing Content
+`<track kind="subtitles" src="/subtitles.vtt">` for informational content
+**Violations:** Missing captions/transcripts, auto-playing audio
 
-**Check:** Users can disable/extend time limits, pause auto-playing content
-**Pattern:** User controls for media, warnings before timeouts
-**Flag:** Content that auto-plays without user control, hard time limits without options
+### 9. Time Limits
 
-### 10. Semantic HTML Optimisation
+User controls for auto-playing content, timeout warnings
+**Violations:** Auto-play without controls, hard time limits
 
-**Check:** Minimal div nesting, semantic elements used correctly
-**Replace:** Generic divs with `<section>`, `<article>`, `<nav>`, `<aside>`
-**Pattern:** Collections as `<ul>/<li>`, time elements as `<time>`, addresses as `<address>`
-**Flag:** Deep div nesting (>3 levels), missed semantic opportunities
+### 10. Semantic HTML & Components
 
-### 11. Dynamic Language Support
+Replace divs: `<section>`, `<article>`, `<nav>`, `<aside>`, `<ul>/<li>`, `<time>`, `<address>`
+**Reusable patterns:** Consistent ARIA labelling, focus management
+**Violations:** Deep div nesting (>3 levels), missed semantic opportunities
 
-**Check:** Does language switching update `document.documentElement.lang`?
-**Pattern:** `useEffect(() => { document.documentElement.lang = language; }, [language])`
-**Flag:** Language toggles without programmatic `lang` attribute updates
+### 11. Dynamic Language
 
-### 12. Form Accessibility and Validation
+```jsx
+useEffect(() => {
+  document.documentElement.lang = language;
+}, [language]);
+```
 
-**Check:** Comprehensive form support with proper validation strategy
-**Pattern:** Browser-first validation with `formRef.current.checkValidity()` + `setCustomValidity()`
-**Required:** `aria-labelledby`, `aria-describedby`, proper `<fieldset>/<legend>`
-**Enhanced:** `role="group"`, associated labels, clear error messaging
-**Flag:** Unlabeled inputs, aggressive custom validation, missing form structure
+**Violations:** Language switching without lang updates
 
-### 13. Live Regions for Dynamic Content
+### 12. Forms
 
-**Check:** All dynamic content has `aria-live` announcements
-**Targets:** Carousels, filtered lists, search results, tab content, form submissions
-**Pattern:** `<div aria-live="polite" className="sr-only">{updateText}</div>`
-**Flag:** Dynamic content changes without screen reader announcements
+```jsx
+<input aria-labelledby="label-id" aria-describedby="error-id" />
+<fieldset><legend>Group label</legend></fieldset>
+```
+
+Browser validation: `formRef.current.checkValidity()` + `setCustomValidity()`
+**Violations:** Unlabeled inputs, missing fieldset/legend, aggressive custom validation
+
+### 13. Live Regions & Focus Management
+
+```jsx
+<div aria-live="polite" className="sr-only">
+  {updateText}
+</div>
+```
+
+Focus traps: `focus-trap-react` with `returnFocusOnDeactivate: true`
+**Targets:** Carousels, search results, tab content, modals
+**Violations:** Dynamic content without announcements, missing focus traps
 
 ### 14. Motion Preferences
 
-**Check:** All animations respect `prefers-reduced-motion`
-**Tailwind:** `motion-reduce:hidden`, `motion-reduce:block`, `motion-reduce:static`
-**Pattern:** Separate experiences, not reduced animations
-**Flag:** Auto-playing videos/animations without motion-reduce alternatives
+`motion-reduce:hidden`, `motion-reduce:block`, `motion-reduce:static`
+**Violations:** Auto-playing animations without motion-reduce alternatives
 
-### 15. Focus Management and ARIA
+## WCAG 2.2 Requirements
 
-**Check:** Modal/drawer components trap focus properly, appropriate ARIA usage
-**Library:** `focus-trap-react` with `returnFocusOnDeactivate: true`
-**Pattern:** `focus-visible:ring-2`, `focus:outline-none` for custom styling
-**ARIA:** Use appropriately, not overused or conflicting with semantics
-**Flag:** Modals without focus trapping, unnecessary ARIA on semantic HTML, invalid ARIA combinations
+### 15. Focus Not Obscured
 
-### 16. Component Architecture
+**Violations:** Sticky headers/modals covering focus indicators
+**Fix:** scroll-padding-top, margin adjustments
 
-**Check:** Accessibility patterns are reusable across components
-**Pattern:** Shared components for forms, navigation, announcements
-**Required:** Consistent ARIA labelling, focus management, semantic structure
-**Flag:** Repeated accessibility implementations, inconsistent patterns
+### 16. Redundant Entry
 
-## New WCAG 2.2 Requirements (Often Missed)
+**Violations:** Multi-step forms requiring duplicate information
+**Fix:** Session storage, autocomplete attributes
 
-### 17. Focus Not Obscured (Minimum)
+### 17. Accessible Authentication
 
-**Check:** Focused elements remain at least partially visible
-**Pattern:** Avoid sticky headers/footers that cover focus indicators
-**Flag:** Modal overlays, fixed elements obscuring keyboard focus
-**Fix:** Add scroll-padding-top or margin adjustments
-
-### 18. Redundant Entry
-
-**Check:** Previously entered information persists without re-entry
-**Pattern:** Form data persistence, auto-fill support
-**Flag:** Multi-step forms requiring duplicate information
-**Fix:** Session storage, proper autocomplete attributes
-
-### 19. Accessible Authentication (Minimum)
-
-**Check:** Authentication doesn't rely solely on cognitive tests
-**Pattern:** Alternative authentication methods, no puzzle CAPTCHAs
-**Flag:** Complex cognitive CAPTCHAs without alternatives
+**Violations:** Cognitive CAPTCHAs without alternatives
 **Fix:** Email/SMS verification, biometric options
 
-### 20. Consistent Help
+### 18. Consistent Help
 
-**Check:** Help mechanisms appear in same location across pages
-**Pattern:** Consistent chat widget, help link placement
-**Flag:** Help resources in different locations per page
+**Violations:** Help resources in different locations per page
 **Fix:** Global help component in layout
 
-## Next.js Specific Accessibility Checks
+## Next.js Specific
 
-### 21. SSR/Hydration Accessibility
+### 19. SSR/Hydration & Client Routing
 
-**Check:** No hydration mismatches breaking accessibility
-**Pattern:** Conditional rendering with `useEffect` for client-only features
-**Flag:** Time-based rendering, browser API usage in SSR
-**Fix:** Proper hydration boundaries, suppressHydrationWarning
+```jsx
+useEffect(() => {
+  // Client-only features
+}, []);
+```
 
-### 22. Client-Side Routing Focus
+Route focus management: Built-in announcer + manual focus reset
+**Violations:** Hydration mismatches, focus remaining on previous page elements
 
-**Check:** Focus management during route transitions
-**Pattern:** Route announcer, focus reset to main content
-**Flag:** Focus remains on previous page elements
-**Fix:** Next.js built-in route announcer, manual focus management
+### 20. Progressive Enhancement
 
-### 23. Progressive Enhancement
+Core functionality works without JavaScript
+**Violations:** Blank pages during JS loading, broken accessibility without JS
 
-**Check:** Core functionality works without JavaScript
-**Pattern:** SSG/SSR for critical content, progressive enhancement
-**Flag:** Blank pages during JS loading, broken accessibility features
-**Fix:** Server-rendered accessible defaults
+## Tailwind Specific
 
-## Tailwind-Specific Patterns
+### 21. Dynamic Classes & Dark Mode
 
-### 24. Dynamic Class Accessibility
+Complete class names: `text-blue-500` not `text-${color}-500`
+Dark mode contrast: Test all combinations, explicit dark: classes
+**Violations:** Purged classes, poor dark mode contrast
 
-**Check:** No dynamic class generation breaking purge
-**Pattern:** Complete class names, not string concatenation
-**Flag:** `text-${color}-500` patterns, conditional partial classes
-**Fix:** Class maps, complete conditional classes
+## Testing Patterns
 
-### 25. Dark Mode Contrast
+### 22. Component Testing
 
-**Check:** Maintain contrast ratios in both themes
-**Pattern:** Test all color combinations in light/dark modes
-**Flag:** Poor contrast in dark mode, invisible focus indicators
-**Fix:** Theme-aware color systems, explicit dark mode classes
+`@testing-library/jest-dom`, `jest-axe`
+Test ARIA states, keyboard navigation, screen reader text
 
-## Automated Testing Integration
+### 23. CI/CD Integration
 
-### 26. Component-Level Testing
+`axe-core`, `pa11y-ci`, `lighthouse-ci`
+Fail builds on accessibility regressions
 
-**Check:** Accessibility tests for each component
-**Tools:** `@testing-library/jest-dom`, `jest-axe`
-**Pattern:** Test ARIA states, keyboard navigation, screen reader text
-**Flag:** Components without accessibility test coverage
+## Quick Audit Priorities
 
-### 27. CI/CD Integration
+1. Missing unique page titles
+2. Multiple h1s/skipped heading levels
+3. Missing main landmark
+4. Colour contrast failures
+5. Missing/inappropriate alt text
+6. Non-functional skip links
+7. Touch targets <24px
+8. Missing captions on informational videos
+9. Deep div nesting vs semantic HTML
+10. Language switching without lang updates
+11. Dynamic content without live regions
+12. Missing motion-reduce alternatives
+13. Unlabeled forms
+14. Missing focus traps in modals
+15. Hydration accessibility mismatches
+16. Missing route focus management
+17. Dark mode contrast failures
+18. Broken dynamic Tailwind classes
 
-**Check:** Automated accessibility testing in pipelines
-**Tools:** `axe-core`, `pa11y-ci`, `lighthouse-ci`
-**Pattern:** Fail builds on accessibility regressions
-**Flag:** No automated accessibility checks
-
-## AI-Optimized Audit Output Format
+## Output Format
 
 ```json
 {
-  "issue": {
-    "id": "unique-identifier",
-    "wcag": ["2.4.7", "2.5.5"],
-    "severity": "Critical|Serious|Moderate|Minor",
-    "component": "Button|Form|Navigation|etc",
-    "location": {
-      "file": "components/Button.tsx",
-      "line": 42,
-      "selector": "button.primary-action"
-    }
-  },
-  "context": {
-    "description": "Clear description of the issue",
-    "userImpact": "How this affects real users",
-    "affectedUsers": ["Screen reader", "Keyboard", "Low vision"]
-  },
+  "issue": "unique-id",
+  "wcag": ["2.4.7"],
+  "severity": "Critical|Serious|Moderate|Minor",
+  "location": "components/Button.tsx:42",
+  "description": "Missing focus indicator",
   "fix": {
-    "effort": "Low|Medium|High",
-    "code": {
-      "before": "// Current implementation",
-      "after": "// Fixed implementation"
-    },
-    "tailwindClasses": ["focus:ring-2", "focus:ring-offset-2"],
-    "testing": "How to verify the fix"
-  },
-  "aiPrompt": "Fix button component missing focus indicator: Add Tailwind focus-visible:ring-2 focus-visible:ring-blue-500 to primary buttons in components/Button.tsx"
+    "before": "<button className=\"bg-blue-500\">",
+    "after": "<button className=\"bg-blue-500 focus-visible:ring-2\">",
+    "effort": "Low"
+  }
 }
 ```
-
-## Prioritization Matrix
-
-### Severity Levels
-
-- **Blocker:** Prevents access to content/functionality
-- **Critical:** Significant barriers to primary tasks
-- **Serious:** Major usability issues
-- **Moderate:** Noticeable problems
-- **Minor:** Polish issues
-
-### Impact Scoring
-
-```
-Score = Severity × Frequency × User Impact × Legal Risk
-```
-
-### Fix Priority
-
-1. **Immediate:** Blockers + high legal risk
-2. **Sprint:** Critical issues on key pages
-3. **Backlog:** Moderate issues
-4. **Nice-to-have:** Minor enhancements
-
-## Quick Wins to Flag
-
-1. **Missing unique page titles**
-2. **Multiple h1s or skipped heading levels**
-3. **Pages without main landmark from layout**
-4. **Color contrast failures (use API for verification)**
-5. **Missing or inappropriate alt text**
-6. **Missing or non-functional skip links**
-7. **Touch targets below 24x24px**
-8. **Informational videos without captions**
-9. **Deep div nesting instead of semantic HTML**
-10. **Language switching without `lang` updates**
-11. **Dynamic content without live regions**
-12. **Missing motion-reduce alternatives**
-13. **Forms without proper labelling/validation**
-14. **Focus traps missing from modals**
-15. **Hydration mismatches affecting accessibility**
-16. **Missing focus management on route changes**
-17. **Dark mode contrast failures**
-18. **Dynamic Tailwind classes breaking**
-
-## Automated Tool Coverage
-
-- **axe-core:** ~57% of WCAG issues, zero false positives
-- **Pa11y:** Command-line friendly, CI/CD integration
-- **Lighthouse:** Quick assessment, subset of axe tests
-- **WAVE API:** Visual overlay, 10k free scans/month
-- **Manual Testing:** Required for remaining ~43% of issues
-
-Focus on systematic patterns rather than individual violations. Identify reusable component improvements that scale across the application.
