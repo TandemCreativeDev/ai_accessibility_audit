@@ -1,5 +1,18 @@
 # Next.js + Tailwind Accessibility Audit
 
+## Methodology
+
+**Never flag an issue without confirming it actually exists:**
+
+- ✅ Test dynamic functionality (language switching, state updates)
+- ✅ Use actual contrast ratio calculations/APIs before claiming contrast issues
+- ✅ Check if existing implementations already solve the problem
+- ✅ Understand the context (decorative vs informational content)
+
+## Process
+
+Before producing output, present each violation with specifics to me, and your proposal for rectifying it, one violation at a time. I will approve, request changes or disapprove it. Once we have run through all, you can produce final json output.
+
 ## Core Patterns
 
 ### 1. Unique Page Titles
@@ -12,6 +25,7 @@
 
 `h1 -> h2 -> h3` (exactly one h1 per page, no skipped levels)
 **Violations:** Multiple h1s, skipped levels, missing h1
+**⚠️ FALSE POSITIVE:** Check actual h1 count - site titles in headers are often properly markup, not multiple h1s
 
 ### 3. Main Landmark
 
@@ -23,13 +37,14 @@
 Min 4.5:1 normal text, 3:1 large text/UI
 **API:** `https://webaim.org/resources/contrastchecker/?fcolor=HEXCOLOR&bcolor=HEXCOLOR&api`
 **⚠️ MUST calculate actual ratios before flagging - don't assume failures**
-**API:** Calculate luminance manually or use contrast tools
+**⚠️ Check actual usage context:** Do not assume background colours, check!
 **Violations:** Insufficient ratios, colour-only information
 
 ### 5. Alt Text
 
 Descriptive: `<Image alt="User profile showing completion status" />`
 Decorative: `<Image alt="" />`
+**⚠️ FALSE POSITIVE:** More verbose alt text isn't better - avoid redundant information
 **Violations:** Missing alt, generic text, identical alt/captions
 
 ### 6. Skip Links
@@ -68,6 +83,7 @@ User controls for auto-playing content, timeout warnings
 
 Replace divs: `<section>`, `<article>`, `<nav>`, `<aside>`, `<ul>/<li>`, `<time>`, `<address>`
 **Reusable patterns:** Consistent ARIA labelling, focus management
+**⚠️ Navigation semantic:** Wrap existing `<ul>` elements with `<nav>`
 **Violations:** Deep div nesting (>3 levels), missed semantic opportunities
 
 ### 11. Dynamic Language
@@ -101,12 +117,14 @@ Browser validation: `formRef.current.checkValidity()` + `setCustomValidity()`
 ```
 
 Focus traps: `focus-trap-react` with `returnFocusOnDeactivate: true`
+**⚠️ Live regions need:** Separate state management and dedicated announcement div
+**⚠️ Check for:** Any dynamic content like hover changes, loading states, filtered content
 **Targets:** Carousels, search results, tab content, modals
 **Violations:** Dynamic content without announcements, missing focus traps
 
 ### 14. Motion Preferences
 
-`motion-reduce:hidden`, `motion-reduce:block`, `motion-reduce:static`, `motion-safe:bl;ock`
+`motion-reduce:hidden`, `motion-reduce:block`, `motion-reduce:static`, `motion-safe:block`
 **⚠️ Don't flag when Tailwind `motion-reduce:` classes already exist**
 **Violations:** Auto-playing animations without motion-reduce alternatives
 
@@ -197,6 +215,7 @@ Fail builds on accessibility regressions
   "severity": "Critical|Serious|Moderate|Minor",
   "location": "components/Button.tsx:42",
   "description": "Missing focus indicator",
+  "commands": ["npm install focus-trap-react"],
   "fix": {
     "before": "<button className=\"bg-blue-500\">",
     "after": "<button className=\"bg-blue-500 focus-visible:ring-2\">",
