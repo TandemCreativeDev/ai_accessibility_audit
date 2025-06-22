@@ -47,11 +47,11 @@
 
 ### 7. Touch Target Size (WCAG 2.2)
 
-**Check:** Interactive elements minimum 44x44px (complex pages only)
-**Pattern:** `min-height: 44px; min-width: 44px` for buttons/links, or adequate spacing
-**Implementation:** Enlarge touch area, not visual appearance: `padding` vs `font-size`
-**Flag:** Small touch targets, insufficient spacing between interactive elements
-**Exception:** Simple pages with minimal interactive content may not require this
+**Check:** Interactive elements minimum 24x24px CSS pixels
+**Pattern:** `min-h-[24px] min-w-[24px]` or adequate spacing between targets
+**Implementation:** Use padding for touch area, not just visual size
+**Flag:** Small touch targets, insufficient spacing (<24px) between interactive elements
+**Note:** Need not change actual icon sizes, only touch target around it
 
 ### 8. Video Captions and Transcripts
 
@@ -116,13 +116,146 @@
 **Required:** Consistent ARIA labelling, focus management, semantic structure
 **Flag:** Repeated accessibility implementations, inconsistent patterns
 
-## Tailwind Accessibility Classes to Verify
+## New WCAG 2.2 Requirements (Often Missed)
 
-- `sr-only` / `focus:not-sr-only` - Screen reader content with focus visibility
-- `focus-visible:ring-2` - Keyboard-only focus indicators
-- `motion-reduce:hidden/block` - Motion preference support
-- `aria-*` attributes properly implemented
-- Custom focus styling with `focus:outline-none focus:ring-2`
+### 17. Focus Not Obscured (Minimum)
+
+**Check:** Focused elements remain at least partially visible
+**Pattern:** Avoid sticky headers/footers that cover focus indicators
+**Flag:** Modal overlays, fixed elements obscuring keyboard focus
+**Fix:** Add scroll-padding-top or margin adjustments
+
+### 18. Redundant Entry
+
+**Check:** Previously entered information persists without re-entry
+**Pattern:** Form data persistence, auto-fill support
+**Flag:** Multi-step forms requiring duplicate information
+**Fix:** Session storage, proper autocomplete attributes
+
+### 19. Accessible Authentication (Minimum)
+
+**Check:** Authentication doesn't rely solely on cognitive tests
+**Pattern:** Alternative authentication methods, no puzzle CAPTCHAs
+**Flag:** Complex cognitive CAPTCHAs without alternatives
+**Fix:** Email/SMS verification, biometric options
+
+### 20. Consistent Help
+
+**Check:** Help mechanisms appear in same location across pages
+**Pattern:** Consistent chat widget, help link placement
+**Flag:** Help resources in different locations per page
+**Fix:** Global help component in layout
+
+## Next.js Specific Accessibility Checks
+
+### 21. SSR/Hydration Accessibility
+
+**Check:** No hydration mismatches breaking accessibility
+**Pattern:** Conditional rendering with `useEffect` for client-only features
+**Flag:** Time-based rendering, browser API usage in SSR
+**Fix:** Proper hydration boundaries, suppressHydrationWarning
+
+### 22. Client-Side Routing Focus
+
+**Check:** Focus management during route transitions
+**Pattern:** Route announcer, focus reset to main content
+**Flag:** Focus remains on previous page elements
+**Fix:** Next.js built-in route announcer, manual focus management
+
+### 23. Progressive Enhancement
+
+**Check:** Core functionality works without JavaScript
+**Pattern:** SSG/SSR for critical content, progressive enhancement
+**Flag:** Blank pages during JS loading, broken accessibility features
+**Fix:** Server-rendered accessible defaults
+
+## Tailwind-Specific Patterns
+
+### 24. Dynamic Class Accessibility
+
+**Check:** No dynamic class generation breaking purge
+**Pattern:** Complete class names, not string concatenation
+**Flag:** `text-${color}-500` patterns, conditional partial classes
+**Fix:** Class maps, complete conditional classes
+
+### 25. Dark Mode Contrast
+
+**Check:** Maintain contrast ratios in both themes
+**Pattern:** Test all color combinations in light/dark modes
+**Flag:** Poor contrast in dark mode, invisible focus indicators
+**Fix:** Theme-aware color systems, explicit dark mode classes
+
+## Automated Testing Integration
+
+### 26. Component-Level Testing
+
+**Check:** Accessibility tests for each component
+**Tools:** `@testing-library/jest-dom`, `jest-axe`
+**Pattern:** Test ARIA states, keyboard navigation, screen reader text
+**Flag:** Components without accessibility test coverage
+
+### 27. CI/CD Integration
+
+**Check:** Automated accessibility testing in pipelines
+**Tools:** `axe-core`, `pa11y-ci`, `lighthouse-ci`
+**Pattern:** Fail builds on accessibility regressions
+**Flag:** No automated accessibility checks
+
+## AI-Optimized Audit Output Format
+
+```json
+{
+  "issue": {
+    "id": "unique-identifier",
+    "wcag": ["2.4.7", "2.5.5"],
+    "severity": "Critical|Serious|Moderate|Minor",
+    "component": "Button|Form|Navigation|etc",
+    "location": {
+      "file": "components/Button.tsx",
+      "line": 42,
+      "selector": "button.primary-action"
+    }
+  },
+  "context": {
+    "description": "Clear description of the issue",
+    "userImpact": "How this affects real users",
+    "affectedUsers": ["Screen reader", "Keyboard", "Low vision"]
+  },
+  "fix": {
+    "effort": "Low|Medium|High",
+    "code": {
+      "before": "// Current implementation",
+      "after": "// Fixed implementation"
+    },
+    "tailwindClasses": ["focus:ring-2", "focus:ring-offset-2"],
+    "testing": "How to verify the fix"
+  },
+  "aiPrompt": "Fix button component missing focus indicator: Add Tailwind focus-visible:ring-2 focus-visible:ring-blue-500 to primary buttons in components/Button.tsx"
+}
+```
+
+## Prioritization Matrix
+
+### Severity Levels
+
+- **Blocker:** Prevents access to content/functionality
+- **Critical:** Significant barriers to primary tasks
+- **Serious:** Major usability issues
+- **Moderate:** Noticeable problems
+- **Minor:** Polish issues
+
+### Impact Scoring
+
+```
+Score = Severity × Frequency × User Impact × Legal Risk
+```
+
+### Fix Priority
+
+1. **Immediate:** Blockers + high legal risk
+2. **Sprint:** Critical issues on key pages
+3. **Backlog:** Moderate issues
+4. **Nice-to-have:** Minor enhancements
 
 ## Quick Wins to Flag
 
@@ -132,7 +265,7 @@
 4. **Color contrast failures (use API for verification)**
 5. **Missing or inappropriate alt text**
 6. **Missing or non-functional skip links**
-7. **Small touch targets on complex interfaces**
+7. **Touch targets below 24x24px**
 8. **Informational videos without captions**
 9. **Deep div nesting instead of semantic HTML**
 10. **Language switching without `lang` updates**
@@ -140,13 +273,17 @@
 12. **Missing motion-reduce alternatives**
 13. **Forms without proper labelling/validation**
 14. **Focus traps missing from modals**
+15. **Hydration mismatches affecting accessibility**
+16. **Missing focus management on route changes**
+17. **Dark mode contrast failures**
+18. **Dynamic Tailwind classes breaking**
 
-## Audit Output Format
+## Automated Tool Coverage
 
-**Issue:** [Specific problem]
-**Impact:** [Screen reader/keyboard/motion sensitivity impact]
-**Fix:** [Tailwind classes and React patterns to implement]
-**API Reference:** [For contrast issues, include WebAIM API results]
-**Priority:** [High/Medium/Low based on WCAG AA compliance]
+- **axe-core:** ~57% of WCAG issues, zero false positives
+- **Pa11y:** Command-line friendly, CI/CD integration
+- **Lighthouse:** Quick assessment, subset of axe tests
+- **WAVE API:** Visual overlay, 10k free scans/month
+- **Manual Testing:** Required for remaining ~43% of issues
 
 Focus on systematic patterns rather than individual violations. Identify reusable component improvements that scale across the application.
