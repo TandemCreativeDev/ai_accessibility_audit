@@ -1,6 +1,6 @@
-# LLM Code Audit Framework
+# LLM Code Audit Framework for Next.js Projects
 
-AI-optimised audit sheets for systematic code quality assessment. Transform manual auditing into structured, agent-driven quality assurance.
+AI-optimised audit sheets for systematic code quality assessment in Next.js projects. Transform manual auditing into structured, agent-driven quality assurance.
 
 ## Available Audits
 
