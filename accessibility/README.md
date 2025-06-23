@@ -13,7 +13,7 @@ Share your Next.js project files with an LLM along with this `AUDIT.md` document
 Use this prompt template:
 
 ```
-Using the AUDIT.md guide, perform a comprehensive accessibility audit of this Next.js + Tailwind project. Focus on the 27 core audit areas and output findings in the specified JSON format for each issue discovered.
+Using the `AUDIT.md` guide, perform a comprehensive accessibility audit of this Next.js + Tailwind project. Focus on the 27 core audit areas and output findings in the specified JSON format for each issue discovered.
 
 Prioritise:
 - WCAG 2.2 compliance violations
@@ -22,6 +22,8 @@ Prioritise:
 - Critical user impact scenarios
 
 Provide actionable fixes with specific code examples.
+
+Before producing output, present each violation with specifics to me, and your proposal for rectifying it, one violation at a time. I will approve, request changes or disapprove it. Once we have run through all, you can produce final json output.
 ```
 
 ### 3. Discuss Violations and Fixes

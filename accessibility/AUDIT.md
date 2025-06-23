@@ -9,10 +9,6 @@
 - ✅ Check if existing implementations already solve the problem
 - ✅ Understand the context (decorative vs informational content)
 
-## Process
-
-Before producing output, present each violation with specifics to me, and your proposal for rectifying it, one violation at a time. I will approve, request changes or disapprove it. Once we have run through all, you can produce final json output.
-
 ## Core Patterns
 
 ### 1. Unique Page Titles

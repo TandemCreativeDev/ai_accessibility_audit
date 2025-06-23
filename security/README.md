@@ -13,7 +13,7 @@ Share your Next.js project files with an LLM along with this `AUDIT.md` document
 Use this prompt template:
 
 ```
-Using the AUDIT.md guide, perform a comprehensive security audit of this Next.js project. Focus on the 19 core security areas and output findings in the specified JSON format for each vulnerability discovered.
+Using the `AUDIT.md` guide, perform a comprehensive security audit of this Next.js project. Focus on the 19 core security areas and output findings in the specified JSON format for each vulnerability discovered.
 
 Prioritise:
 - Authentication and authorisation flaws
@@ -23,6 +23,8 @@ Prioritise:
 - Critical production security gaps
 
 Provide actionable fixes with specific code examples.
+
+Before producing output, present each violation with specifics to me, and your proposal for rectifying it, one violation at a time. I will approve, request changes or disapprove it. Once we have run through all, you can produce final json output.
 ```
 
 ### 3. Review Violations and Fixes

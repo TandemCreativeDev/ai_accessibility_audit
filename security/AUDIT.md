@@ -10,10 +10,6 @@
 - ✅ Confirm dependency vulnerabilities affect actual usage patterns
 - ✅ Validate that authentication checks exist server-side, not just client-side
 
-## Process
-
-Before producing output, present each violation with specifics to me, and your proposal for rectifying it, one violation at a time. I will approve, request changes or disapprove it. Once we have run through all, you can produce final json output.
-
 ## Core Patterns
 
 ### 1. Server Component Authentication
