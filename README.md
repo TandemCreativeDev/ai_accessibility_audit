@@ -58,14 +58,15 @@ This approach becomes significantly more practical when using [OpenAI's Codex ag
 ```mermaid
 flowchart TB
     A[Upload repo + audit sheet to Claude] -->|Interactive review| B[Claude presents violations one-by-one]
-    B -->|Approve/modify each fix| C[Finalise violation list]
-    C -->|Export| D[Structured JSON output]
+    B -->|Review| C[Codebase]
+    C -.->|Reject/Iterate| B
+    C -->|Approve| D[Finalise violation list]
+    D -->|Export| E[Structured JSON output]
 
-    D -->|Feed JSON directly| E[Codex agent implementation]
-    E -->|Systematic changes| F[Code diffs & pull requests]
-    F -->|Review & merge| G[Improved codebase]
-
-    B -.->|Reject/modify| B
+    E -->|Feed JSON directly| F[Codex agent implementation]
+    F -->|Systematic changes| G[Code diffs & pull requests]
+    G -.->|Review/Iterate| F
+    G -->|Approve & merge| H[Improved codebase]
 ```
 
 **The process in detail:**
