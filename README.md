@@ -90,16 +90,6 @@ Apply accessibility fixes from audit JSON:
 Work through each fix systematically, maintaining code quality and testing.
 ```
 
-### CI/CD Pipeline
-
-```yaml
-- name: Code Quality Audit
-  run: |
-    # Upload codebase + audit sheets to LLM
-    # Process structured JSON output
-    # Feed approved changes to implementation agents
-```
-
 ## Methodology
 
 **Zero False Positives**: Every violation requires actual confirmation
