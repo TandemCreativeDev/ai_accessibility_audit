@@ -38,7 +38,9 @@ Feed a prompt like this into your implementation agent (recommend to use [OpenAI
 
 ```markdown
 Apply required changes listed in JSON accessibility audit below:
-[PASTE JSON]
+[PASTE COMPLETE JSON OUTPUT]
+
+Work through each fix systematically, maintaining code quality and testing.
 ```
 
 ## What Gets Audited

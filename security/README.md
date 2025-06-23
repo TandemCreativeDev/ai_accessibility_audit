@@ -39,7 +39,9 @@ Feed a prompt like this into your implementation agent:
 
 ```markdown
 Apply required security fixes listed in JSON audit below:
-[PASTE JSON]
+[PASTE COMPLETE JSON OUTPUT]
+
+Work through each fix systematically, maintaining code quality and testing.
 ```
 
 ## What Gets Audited
