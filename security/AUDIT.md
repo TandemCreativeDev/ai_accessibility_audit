@@ -4,10 +4,11 @@
 
 **Never flag an issue without confirming it actually exists:**
 
-✅ **Framework Context**: Next.js Server Components and built-in protections invalidate many traditional web vulnerabilities
-✅ **Environment Variables**: `NEXT_PUBLIC_` prefixed variables are intentionally client-exposed
-✅ **Test Dynamic Functionality**: Server Actions, middleware chains, authentication flows require runtime validation
-✅ **Distinguish Risk Levels**: Business logic flaws vs configuration issues vs theoretical vulnerabilities
+- ✅ Test Server Actions vs API routes - built-in CSRF protection differs
+- ✅ Verify environment variables are actually exposed client-side before flagging
+- ✅ Check if security headers are set in middleware, next.config.js, or deployment
+- ✅ Confirm dependency vulnerabilities affect actual usage patterns
+- ✅ Validate that authentication checks exist server-side, not just client-side
 
 ## Process
 
@@ -171,7 +172,24 @@ if (!ALLOWED_DOMAINS.includes(urlObj.hostname)) {
 **Violations:** User-controlled URLs in fetch operations
 **⚠️ FALSE POSITIVE:** Hardcoded, legitimate external API calls
 
-### 14. Error Information Disclosure
+### 14. Third-Party Integration Security
+
+```javascript
+export async function POST(request: NextRequest) {
+  const signature = request.headers.get("x-signature-256");
+  const body = await request.text();
+
+  if (!verifyWebhookSignature(body, signature, process.env.WEBHOOK_SECRET)) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
+  }
+}
+```
+
+**Violations:** Unvalidated webhook endpoints, missing signature verification
+**⚠️ FALSE POSITIVE:** Webhook validation in middleware or external service
+**✅ Check:** Verify webhook security through signature validation or IP allowlisting
+
+### 15. Error Information Disclosure
 
 ```javascript
 } catch (error) {
@@ -185,7 +203,7 @@ if (!ALLOWED_DOMAINS.includes(urlObj.hostname)) {
 **Violations:** Exposing stack traces, database errors, file paths
 **⚠️ FALSE POSITIVE:** User-friendly validation error messages
 
-### 15. Session Management
+### 16. Session Management
 
 ```javascript
 export async function createSession(userId: string) {
@@ -200,7 +218,7 @@ export async function createSession(userId: string) {
 **Violations:** Sessions in localStorage, missing expiration, weak tokens
 **⚠️ FALSE POSITIVE:** UI state in sessionStorage (non-auth data)
 
-### 16. Security Headers
+### 17. Security Headers
 
 ```javascript
 // next.config.js
@@ -218,7 +236,7 @@ async headers() {
 **Violations:** Missing security headers in production
 **⚠️ FALSE POSITIVE:** Headers set via CDN or middleware instead
 
-### 17. Route Parameter Validation
+### 18. Route Parameter Validation
 
 ```javascript
 export default async function PostPage({ params }: { params: { id: string } }) {
@@ -230,7 +248,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 **Violations:** Direct use of params in database queries
 **⚠️ FALSE POSITIVE:** Simple display logic with route params
 
-### 18. Dependency Vulnerabilities
+### 19. Dependency Vulnerabilities
 
 **Commands:** `npm audit --audit-level=moderate`, `npx snyk test`
 **Violations:** High/Critical vulnerabilities with available fixes
@@ -251,8 +269,9 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 11. Authorization checks beyond authentication
 12. XSS via `dangerouslySetInnerHTML`
 13. SSRF in user-controlled fetch operations
-14. CSP implementation with nonces
-15. Dependency audit (`npm audit`)
+14. Third-party webhook signature verification
+15. CSP implementation with nonces
+16. Dependency audit (`npm audit`)
 
 ## Output Format
 
