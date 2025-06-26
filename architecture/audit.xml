@@ -79,7 +79,7 @@
       </violation_presentation>
     </violation_template>
 
-    Before producing output, present each violation with specifics to me, and your proposal for rectifying it, **one violation at a time**. I will approve, request changes or disapprove it, and you will present the next. Once we have run through all, you can produce final json output.
+    Before producing output, present each violation with specifics to me, and your proposal for rectifying it, **one violation at a time**. I will approve, request changes or disapprove it, and you will present the next. Once we have run through all, you can produce final json output. Do not move on to the next violation until I have confirmed the final word on it.
   </interactive_workflow>
 
   <core_patterns>
@@ -514,7 +514,7 @@
       return <Select options={countries} />;
     }
     ```
-    - **Violations:** Static arrays/objects >20 items defined in components, hardcoded lookup tables, configuration data mixed with logic
+    - **Violations:** Static arrays/objects more than 20 items defined in components, hardcoded lookup tables, configuration data mixed with logic
     - **⚠️ FALSE POSITIVE:** Dynamic data, small lookup arrays (<20 items), data that changes based on props/state
     - **✅ Check:** Is data static and used across multiple components or >20 items?
 
