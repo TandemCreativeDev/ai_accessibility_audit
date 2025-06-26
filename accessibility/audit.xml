@@ -71,6 +71,9 @@
                 </proposed_fix>
             </violation_presentation>
         </violation_template>
+
+    Before producing output, present each violation with specifics to me, and your proposal for rectifying it, **one violation at a time**. I will approve, request changes or disapprove it, and you will present the next. Once we have run through all, you can produce final json output. Do not move on to the next violation until I have confirmed the final word on it.
+
     </interactive_workflow>
 
     <core_patterns>
