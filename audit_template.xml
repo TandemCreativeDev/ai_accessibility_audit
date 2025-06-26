@@ -61,7 +61,6 @@
     5. **Only add to final JSON** after user confirmation
     
     <violation_template>
-      ```xml
       <violation_presentation>
         <issue_id>unique-identifier</issue_id>
         <[standard]_criteria>["[criterion_1]", "[criterion_2]"]</[standard]_criteria>
@@ -76,8 +75,10 @@
           <effort>Low|Medium|High</effort>
         </proposed_fix>
       </violation_presentation>
-      ```
     </violation_template>
+
+    Before producing output, present each violation with specifics to me, and your proposal for rectifying it, **one violation at a time**. I will approve, request changes or disapprove it, and you will present the next. Once we have run through all, you can produce final json output. Do not move on to the next violation until I have confirmed the final word on it.
+
   </interactive_workflow>
 
   <core_patterns>
