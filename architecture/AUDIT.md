@@ -10,10 +10,6 @@
 - ✅ Verify co-location violations - check if code placement actually hinders maintainability
 - ✅ Confirm TypeScript overengineering - distinguish between necessary complexity and gold-plating
 
-## Process
-
-This audit examines architectural patterns, component design, and code organisation following functional programming principles and Next.js App Router best practices. Focus on systematic detection of patterns that impact maintainability, performance, and developer experience.
-
 **Interactive Review Process:**
 
 1. Present each violation individually with specific code evidence
@@ -46,10 +42,10 @@ function getDisplayName(
 const validateUser = (userData: UserData): void => {
   /* validation only */
 };
-const normalizeUser = (userData: UserData): NormalizedUser => {
+const normaliseUser = (userData: UserData): NormalisedUser => {
   /* transformation only */
 };
-const processUser = (userData: UserData): NormalizedUser => {
+const processUser = (userData: UserData): NormalisedUser => {
   validateUser(userData);
   const normalized = normalizeUser(userData);
   return normalized;
@@ -355,19 +351,27 @@ DataTableProps) {}
 **⚠️ FALSE POSITIVE:** Complex components with legitimate configuration needs, props matching external API requirements
 **✅ Check:** Can component API be simplified through composition or configuration objects?
 
-### 18. Naming Conventions
+### 18. Naming Conventions and Component Declarations
 
 ```typescript
-// ❌ Inconsistent naming
+// ❌ Inconsistent naming + const components
 const userInfo = getUserData();
 const userData = processUserInfo();
 const user_profile = createUserProfile();
-const GetUserComponent = () => {};
+const GetUserComponent = () => {}; // const declaration
+const user_card = ({ user }) => {}; // wrong casing + const
+
+// ✅ Consistent naming + function declarations
+const userInfo = getUserData();
+const userData = processUserInfo();
+const userProfile = createUserProfile();
+function GetUserComponent() {} // function declaration
+function UserCard({ user }: { user: User }) {} // proper casing + function
 ```
 
-**Violations:** Mixed naming conventions, unclear variable purposes, non-descriptive names, incorrect casing for types/functions
-**⚠️ FALSE POSITIVE:** Domain-specific terminology, established team conventions, external API naming requirements
-**✅ Check:** Are naming patterns consistent within the project scope?
+**Violations:** Mixed naming conventions, const arrow functions for components, unclear variable purposes, incorrect casing for types/functions
+**⚠️ FALSE POSITIVE:** Callback functions as consts, utility functions, legacy code with established patterns, external API naming requirements
+**✅ Check:** Are naming patterns and component declaration styles consistent within project scope?
 
 ### 19. Code Splitting and Dynamic Imports
 
@@ -408,6 +412,92 @@ const useComplexState = () => {
 **Violations:** useReducer for simple state, multiple related useState calls, complex state synchronisation logic
 **⚠️ FALSE POSITIVE:** Complex forms, state machines, legitimate complex business logic
 **✅ Check:** Can state be simplified to fewer useState calls or moved to URL/server?
+
+### 21. File Hygiene
+
+```typescript
+// ❌ Multiple components in one file + oversized
+// UserComponents.tsx (450 lines)
+export function UserCard({ user }: { user: User }) {
+  // ... 100 lines of complex logic
+}
+export function UserList({ users }: { users: User[] }) {
+  // ... 150 lines
+}
+export function UserModal({ isOpen }: { isOpen: boolean }) {
+  // ... 200 lines
+}
+
+// ✅ Single component per file, reasonable size
+// UserCard.tsx (85 lines)
+export default function UserCard({ user }: { user: User }) {
+  // Focused, readable component
+}
+```
+
+**Violations:** Multiple components exported from one file, files >300 lines, components >150 lines without clear necessity
+**⚠️ FALSE POSITIVE:** Compound components (Tabs.Panel, Card.Header), utility/helper functions in same file, complex but indivisible components
+**✅ Check:** Can large components be meaningfully split without creating artificial boundaries?
+
+### 22. Data Co-location
+
+```typescript
+// ❌ Large static dataset in component
+function CountrySelector() {
+  const countries = [
+    { code: "US", name: "United States", flag: "🇺🇸" },
+    { code: "UK", name: "United Kingdom", flag: "🇬🇧" },
+    // ... 195 more countries (100+ lines)
+  ];
+
+  return <Select options={countries} />;
+}
+
+// ✅ Extracted to data file
+import countries from "@/data/countries.json";
+
+function CountrySelector() {
+  return <Select options={countries} />;
+}
+```
+
+**Violations:** Static arrays/objects >20 items defined in components, hardcoded lookup tables, configuration data mixed with logic
+**⚠️ FALSE POSITIVE:** Dynamic data, small lookup arrays (<20 items), data that changes based on props/state
+**✅ Check:** Is data static and used across multiple components or >20 items?
+
+### 23. Type Definition Strategy
+
+```typescript
+// ❌ Repetitive types + separate validation
+interface CreateUserRequest {
+  name: string;
+  email: string;
+  age: number;
+}
+interface UpdateUserRequest {
+  name: string;
+  email: string;
+  age: number;
+}
+// Separate validation functions elsewhere...
+
+// ✅ Shared schema serving as validation + types
+const BaseUserSchema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+  age: z.number().min(13).max(120),
+});
+
+const CreateUserSchema = BaseUserSchema;
+const UpdateUserSchema = BaseUserSchema.partial();
+
+type CreateUser = z.infer<typeof CreateUserSchema>;
+type UpdateUser = z.infer<typeof UpdateUserSchema>;
+```
+
+**Violations:** Duplicate interface definitions, separate validation and type definitions, over-centralised types in single file, missing validation integration
+**⚠️ FALSE POSITIVE:** Legitimately different types that happen to share fields, external API types that must match exactly, simple types that don't need validation
+**✅ Check:** Are similar types used in 3+ places and do they need validation logic?
 
 ## Quick Audit Priorities
 
