@@ -6,35 +6,28 @@ AI-assisted accessibility auditing for Next.js applications using Tailwind CSS. 
 
 ### 1. Upload Your Project
 
-Share your Next.js project files with an LLM along with this `AUDIT.md` document.
+Share your Next.js project files with an LLM along with the `audit.xml` document.
 
 ### 2. Run the Audit
 
-Use this prompt template:
+The `audit.xml` contains everything needed to perform a comprehensive accessibility audit. Simply upload both your codebase and the XML file - no additional prompts required.
 
-```
-Using the `AUDIT.md` guide, perform a comprehensive accessibility audit of this Next.js + Tailwind project. Focus on the 27 core audit areas and output findings in the specified JSON format for each issue discovered.
+The LLM will automatically:
 
-Prioritise:
-- WCAG 2.2 compliance violations
-- Next.js-specific accessibility patterns
-- Tailwind class usage issues
-- Critical user impact scenarios
+- Apply the structured audit methodology
+- Present each violation individually for review
+- Provide specific WCAG 2.2 compliance guidance
+- Output structured JSON for implementation
 
-Provide actionable fixes with specific code examples.
+### 3. Review Violations and Fixes
 
-Before producing output, present each violation with specifics to me, and your proposal for rectifying it, one violation at a time. I will approve, request changes or disapprove it. Once we have run through all, you can produce final json output.
-```
-
-### 3. Discuss Violations and Fixes
-
-The LLM will present each issue, one at a time, with suggested fixes. You can review it, check that the LLM has interpreted the codebase correctly, and check whether the fix is appropriate or suggest an alternative approach.
+The LLM will present each accessibility issue one at a time with suggested fixes. You can review, verify the LLM has interpreted the codebase correctly, and approve or modify the proposed solutions.
 
 ### 4. Process Results
 
-At the end, the LLM will output a structured JSON listing each issue that can be fed directly into implementation agents or development workflows.
+At the end, the LLM will output structured JSON listing each issue that can be fed directly into implementation agents or development workflows.
 
-## 5. Implementation Agent
+### 5. Implementation Agent
 
 Feed a prompt like this into your implementation agent (recommend to use [OpenAI Codex](https://openai.com/index/introducing-codex/)):
 
@@ -177,7 +170,7 @@ The audit automatically flags these common, high-impact issues:
 ```yaml
 - name: Accessibility Audit
   run: |
-    # Upload codebase + AUDIT.md to LLM
+    # Upload codebase + audit.xml to LLM
     # Process JSON output
     # Fail build on Critical/Blocker issues
 ```
